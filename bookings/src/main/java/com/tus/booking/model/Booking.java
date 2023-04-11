@@ -55,6 +55,12 @@ public class Booking {
   @Setter
   private PaymentStatus paymentStatus;
 
+  @Column(name = "start_date", nullable = false)
+  private LocalDateTime startDate;
+
+  @Column(name = "end_date", nullable = false)
+  private LocalDateTime endDate;
+
   @Column(name = "booking_date", nullable = false)
   @Getter
   @Setter
@@ -64,6 +70,8 @@ public class Booking {
   @Getter
   @Setter
   private BigDecimal totalPrice;
+
+
 
   public enum BookingStatus {
     PENDING,

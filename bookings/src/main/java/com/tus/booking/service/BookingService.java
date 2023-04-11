@@ -2,6 +2,7 @@ package com.tus.booking.service;
 
 import com.tus.booking.dao.BookingRepository;
 import com.tus.booking.model.Booking;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class BookingService {
     bookingRepository.deleteById(id);
   }
 
-  // Add any custom business logic methods here, if needed
+  public boolean isCarAvailable(Long carRentalId, LocalDateTime startDate, LocalDateTime endDate) {
+    List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(carRentalId, startDate, endDate);
+    return overlappingBookings.isEmpty();
+  }
 
 }
