@@ -1,5 +1,5 @@
 pipeline {
-    agent { none }
+    agent none 
     stages {
         stage('Compile & Test') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
