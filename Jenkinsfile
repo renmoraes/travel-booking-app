@@ -9,6 +9,28 @@ pipeline {
             }
         }
 
+        // stage('Code Quality') {
+        //     agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
+        //     steps {
+        //         script {
+        //             withSonarQubeEnv('sonarqube') {
+        //                 sh 'mvn sonar:sonar -Dsonar.projectKey=myProjectKey -Dsonar.organization=myOrg -Dsonar.host.url=https://sonar.example.com'
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage('Publish Test Results') {
+            steps {
+                junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                rtTestPublisher (
+                testResults: '**/target/surefire-reports/TEST-*.xml', 
+                failBuildIfNoTests: true, 
+                resolveInputVariables: true
+                )
+            }
+        }
+
         stage('Build CI') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
             steps {
@@ -30,5 +52,6 @@ pipeline {
                 }
             }
         }
+
     }
 }
