@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker { image 'maven:3.9.0-eclipse-temurin-11' } }
+    agent { docker { image 'remoraes/com.tus.microfronted.custom-jenkins-agent' } }
     stages {
         stage('Compile & Test') {
             steps {
