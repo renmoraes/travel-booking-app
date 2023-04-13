@@ -17,11 +17,16 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            agent { docker { image 'docker:dind'} }
+            agent any
             steps {
                 script {
-                     def customImage = docker.build("my-image:${env.BUILD_ID}",
-                                   "-f carRental/Dockerfile ./carRental")
+                    def branchName = env.BRANCH_NAME.replace('/', '_')
+                    def commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                    def dockerImageName = "${branchName}_${env.BUILD_ID}_${commitHash.take(4)}"
+                    docker.withRegistry('remoraes/com.tus.microservices.car-rental', 'jenkins_dockerhub') {
+                        def customImage = docker.build( dockerImageName, "-f carRental/Dockerfile ./carRental")
+                        customImage.push()
+                    }
                 }
             }
         }
