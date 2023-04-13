@@ -23,7 +23,7 @@ pipeline {
                     def branchName = env.BRANCH_NAME.replace('/', '_')
                     def commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
                     def dockerImageName = "remoraes/com.tus.microservices.car-rental:${branchName}_${env.BUILD_ID}_${commitHash.take(4)}"
-                    docker.withRegistry('https://hub.docker.com/', 'jenkins_dockerhub') {
+                    docker.withRegistry('', 'jenkins_dockerhub') {
                         def customImage = docker.build( dockerImageName, "-f carRental/Dockerfile ./carRental")
                         customImage.push()
                     }
