@@ -1,5 +1,9 @@
 pipeline {
-    agent { docker { image 'remoraes/com.tus.custom-jenkins-agent' } }
+    agent { docker { 
+        image 'remoraes/com.tus.custom-jenkins-agent' 
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
+        } 
+    }
     stages {
         stage('Compile & Test') {
             steps {
