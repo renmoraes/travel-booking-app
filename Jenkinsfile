@@ -21,6 +21,7 @@ pipeline {
         // }
 
         stage('Publish Test Results') {
+            agent any
             steps {
                 junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
                 rtTestPublisher (
