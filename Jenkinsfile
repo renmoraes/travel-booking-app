@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker { image 'remoraes/com.tus.microfronted.custom-jenkins-agent' } }
+    agent { docker { image 'remoraes/com.tus.custom-jenkins-agent' } }
     stages {
         stage('Compile & Test') {
             steps {

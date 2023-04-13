@@ -7,3 +7,6 @@ RUN apt-get update && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
     apt-get install -y docker-ce docker-ce-cli containerd.io
+    
+# Create the /.docker directory with the required permissions
+RUN mkdir /.docker && chmod 777 /.docker
