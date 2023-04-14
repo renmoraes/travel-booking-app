@@ -57,7 +57,7 @@ pipeline {
             // Archive the Jacoco coverage reports
             jacoco(execPattern: '**/**.exec')
             // Publish checkstyle and warning NG reports
-            recordIssues(tools: [checkStyle(pattern: 'target/checkstyle-result.xml') , warningsParser(parserConfigurations: [[parserName: 'Java Warnings', pattern: 'target/warnings.xml']]]))
+            recordIssues(tools: [checkStyle(pattern: 'target/checkstyle-result.xml'), warningsParser(parserConfigurations: [[parserName: 'Java Warnings', pattern: 'target/warnings.xml']])])
         }
     }
 }
