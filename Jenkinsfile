@@ -1,5 +1,5 @@
 pipeline {
-    agent none 
+    agent any 
     stages {
         stage('Build & Test') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
@@ -48,10 +48,15 @@ pipeline {
     }
     post {
         always {
-            // Archive the Jacoco coverage reports
-            jacoco(path: '**/**.exec')
             // Publish checkstyle and warning NG reports
-            recordIssues(tools: [ java(), checkStyle(pattern: 'target/checkstyle-result.xml', reportEnconding: 'UTF-8')])
+            recordIssues(tools: [ java(), checkStyle(pattern: '**/target/checkstyle-result.xml', reportEnconding: 'UTF-8')])
+        }
+        success {
+            jacoco(
+                execPattern: '**/build/jacoco/*.exec',
+                classPattern: '**/build/classes/java/main',
+                sourcePattern: '**/src/main'
+            )
         }
     }
 }
