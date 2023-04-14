@@ -1,10 +1,13 @@
 pipeline {
     agent none 
     stages {
-        stage('Build') {
+        stage('Build & Test') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
             steps {
                 sh 'mvn clean compile checkstyle:checkstyle'
+                realtimeJUnit('**/target/surefire-reports/TEST-*.xml') {
+                    sh 'mvn verify -pl carRental'
+                }
             }
         }
 
@@ -19,15 +22,6 @@ pipeline {
         //     }
         // }
 
-        stage('Publish Test Results') {
-            agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
-            steps {
-                realtimeJUnit('**/target/surefire-reports/TEST-*.xml') {
-                    sh 'mvn -Dmaven.test.failure.ignore=true clean verify -pl carRental'
-                }
-
-            }
-        }
 
         stage('Create JAR') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
@@ -55,7 +49,7 @@ pipeline {
     post {
         always {
             // Archive the Jacoco coverage reports
-            jacoco(execPattern: '**/**.exec')
+            jacoco(path: '**/**.exec')
             // Publish checkstyle and warning NG reports
             recordIssues(tools: [checkStyle(pattern: 'target/checkstyle-result.xml'), warningsParser(parserConfigurations: [[parserName: 'Java Warnings', pattern: 'target/warnings.xml']])])
         }
