@@ -4,7 +4,7 @@ pipeline {
         stage('Compile & Test') {
             agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
             steps {
-                sh 'mvn clean compile -pl carRental'
+                sh 'mvn clean compile checkstyle:checkstyle'
                 sh 'mvn test -pl carRental'
             }
         }
@@ -21,14 +21,12 @@ pipeline {
         // }
 
         stage('Publish Test Results') {
-            agent any
+            agent { docker { image 'maven:3.9.0-eclipse-temurin-11-focal'} }
             steps {
-                junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                rtTestPublisher (
-                testResults: '**/target/surefire-reports/TEST-*.xml', 
-                failBuildIfNoTests: true, 
-                resolveInputVariables: true
-                )
+                realtimeJUnit('**/target/surefire-reports/TEST-*.xml') {
+                    sh 'mvn -Dmaven.test.failure.ignore=true clean verify'
+                }
+
             }
         }
 
@@ -54,5 +52,10 @@ pipeline {
             }
         }
 
+    }
+    post {
+        always {
+            checkstyle pattern: 'carRental/target/checkstyle-result.xml'
+        }
     }
 }
