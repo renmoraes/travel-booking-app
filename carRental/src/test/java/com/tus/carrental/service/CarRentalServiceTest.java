@@ -112,7 +112,8 @@ public class CarRentalServiceTest {
   void testApplyDiscount() {
     BigDecimal rentalCost = BigDecimal.valueOf(100.00);
     double discountPercentage = 20.0;
-    BigDecimal expectedDiscountedCost = BigDecimal.valueOf(80.0);
+    BigDecimal expectedDiscountedCost = BigDecimal.valueOf(80.00)
+        .setScale(2,RoundingMode.HALF_UP);
 
     BigDecimal actualDiscountedCost = carRentalService.applyDiscount(rentalCost, discountPercentage);
 
