@@ -1,6 +1,7 @@
 package com.tus.carrental.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +37,10 @@ public class CarRental {
   private String carType;
 
   @Column(name = "price", nullable = false)
-  @Getter
   @Setter
   private BigDecimal price;
+
+  public BigDecimal getPrice() {
+    return price.setScale(2, RoundingMode.HALF_UP);
+  }
 }

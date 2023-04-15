@@ -103,7 +103,7 @@ public class CarRentalServiceTest {
     LocalDateTime endDate = LocalDateTime.of(2023, 4, 3, 18, 0);
 
     BigDecimal actual = carRentalService.calculateRentalCost(carRental, startDate, endDate);
-    BigDecimal expected = new BigDecimal("100.0");
+    BigDecimal expected = new BigDecimal("100.00");
 
     assertThat(actual).isEqualTo(expected);
   }

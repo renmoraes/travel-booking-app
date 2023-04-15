@@ -33,7 +33,7 @@ public class CarRentalBaseUtils {
     carRental2.setId(2L);
     carRental2.setRentalCompany("Hertz");
     carRental2.setCarType("SUV");
-    carRental2.setLocation("New York, USA");
+    carRental2.setLocation("London, UK");
     carRental2.setPrice(BigDecimal.valueOf(80.00));
 
     CarRental carRental3 = new CarRental();

@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,9 @@ public class CarRentalController {
   @GetMapping
   public ResponseEntity<List<CarRental>> findAll() {
     List<CarRental> carRentals = carRentalService.findAll();
+    if (carRentals.size()==0){
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).body(carRentals);
+    }
     return ResponseEntity.ok(carRentals);
   }
 
@@ -41,7 +45,7 @@ public class CarRentalController {
   @PostMapping
   public ResponseEntity<CarRental> save(@RequestBody CarRental carRental) {
     CarRental savedCarRental = carRentalService.save(carRental);
-    return ResponseEntity.ok(savedCarRental);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedCarRental);
   }
 
   @PutMapping("/{id}")
@@ -62,7 +66,7 @@ public class CarRentalController {
       return ResponseEntity.notFound().build();
     }
     carRentalService.deleteById(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/available")
@@ -78,6 +82,9 @@ public class CarRentalController {
     LocalDateTime endDateTime = LocalDateTime.parse(endDate, formatter);
 
     List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals(location, carType, minPrice, maxPrice, startDateTime, endDateTime);
+    if (availableCarRentals.isEmpty()){
+      return ResponseEntity.noContent().build();
+    }
     return ResponseEntity.ok(availableCarRentals);
   }
 
