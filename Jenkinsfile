@@ -72,7 +72,7 @@ pipeline {
             steps {
                 sh 'mvn clean compile checkstyle:checkstyle'
                 realtimeJUnit('**/target/surefire-reports/TEST-*.xml') {
-                    sh 'mvn verify -pl carRental'
+                    sh 'mvn package -pl carRental'
                 }
             }
         }
@@ -85,13 +85,6 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
                 sh 'mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
                 }
-            }
-        }
-
-
-        stage('Create JAR') {
-            steps {
-                sh 'mvn install -DskipTests -pl carRental'
             }
         }
 
