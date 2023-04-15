@@ -17,7 +17,7 @@ pipeline {
         stage('Run integration test') {
             steps {
                 realtimeJUnit('**/target/failsafe-reports/TEST-*.xml' ) {
-                    sh 'mvn integration-test-pl carRental'
+                    sh 'mvn integration-test -pl carRental'
                 }
             }
         }
@@ -55,8 +55,8 @@ pipeline {
         }
         success {
             jacoco(
-                execPattern: '**/carRental/build/jacoco/*.exec',
-                classPattern: '**/carRental/build/classes/java/main',
+                execPattern: '**/carRental/target/jacoco/*.exec',
+                classPattern: '**/carRental/target/classes/java/main',
                 sourcePattern: '**/carRental/src/main'
             )
         }
