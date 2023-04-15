@@ -5,31 +5,25 @@ pipeline {
         } 
     }
     stages {
-        stage('Build & Test') {
+        stage('Build and compile') {
             steps {
                 sh 'mvn clean compile checkstyle:checkstyle'
-                realtimeJUnit('**/target/surefire-reports/TEST-*.xml' ) {
-                    sh 'mvn package -pl carRental'
+            }
+        }
+
+        stage('Run test & Sonarqube Code Quality') {
+            steps {
+                realtimeJUnit('**/target/failsafe-reports/TEST-*.xml' , '**/target/surefire-reports/TEST-*.xml' ) {
+                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
+                        sh 'cd carRental && mvn verify'
+                     }
                 }
             }
         }
 
-        stage('Run integration test') {
+        stage('Create JAR file') {
             steps {
-                realtimeJUnit('**/target/failsafe-reports/TEST-*.xml' ) {
-                    sh 'mvn integration-test -pl carRental'
-                }
-            }
-        }
-
-        stage('Sonarqube Code Quality') {
-            environment {
-                SONAR_URL = "http://151.236.216.18:9000/"
-            }
-            steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
-                sh 'cd carRental && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
-                }
+                sh 'cd carRental && mvn package -DskipTests'
             }
         }
 
@@ -55,9 +49,9 @@ pipeline {
         }
         success {
             jacoco(
-                execPattern: '**/carRental/target/jacoco/*.exec',
-                classPattern: '**/carRental/target/classes/java/main',
-                sourcePattern: '**/carRental/src/main'
+                execPattern: '**/target/jacoco/*.exec',
+                classPattern: '**/target/classes/java/main',
+                sourcePattern: '**/src/main'
             )
         }
     }
