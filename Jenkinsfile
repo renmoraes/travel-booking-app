@@ -64,7 +64,7 @@
 pipeline {
     agent { docker { 
         image 'remoraes/com.tus.custom-jenkins-agent' 
-        args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+        args '--user jenkins -v /var/run/docker.sock:/var/run/docker.sock'
         } 
     }
     stages {
