@@ -8,8 +8,16 @@ pipeline {
         stage('Build & Test') {
             steps {
                 sh 'mvn clean compile checkstyle:checkstyle'
-                realtimeJUnit('**/target/surefire-reports/TEST-*.xml') {
+                realtimeJUnit('**/target/surefire-reports/TEST-*.xml' ) {
                     sh 'mvn package -pl carRental'
+                }
+            }
+        }
+
+        stage('Run integration test') {
+            steps {
+                realtimeJUnit('**/target/failsafe-reports/TEST-*.xml' ) {
+                    sh 'mvn integration-test-pl carRental'
                 }
             }
         }
@@ -47,9 +55,9 @@ pipeline {
         }
         success {
             jacoco(
-                execPattern: '**/build/jacoco/*.exec',
-                classPattern: '**/build/classes/java/main',
-                sourcePattern: '**/src/main'
+                execPattern: '**/carRental/build/jacoco/*.exec',
+                classPattern: '**/carRental/build/classes/java/main',
+                sourcePattern: '**/carRental/src/main'
             )
         }
     }
