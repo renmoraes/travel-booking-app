@@ -16,6 +16,8 @@
   <description>hotel</description>
   <properties>
     <java.version>11</java.version>
+    <sonar.projectName>hotel</sonar.projectName>
+    <sonar.projectKey>tus:travel-booking-app:hotel</sonar.projectKey>
   </properties>
   <dependencies>
     <dependency>
@@ -75,6 +77,19 @@
         <groupId>org.jacoco</groupId>
         <version>0.8.8</version>
       </plugin>
+      <plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.9.0.2155</version>
+				<executions>
+					<execution>
+					<phase>verify</phase>
+					<goals>
+						<goal>sonar</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
     </plugins>
   </build>
 
