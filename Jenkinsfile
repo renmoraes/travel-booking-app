@@ -13,7 +13,7 @@ pipeline {
 
         stage('Run test & Sonarqube Code Quality') {
             steps {
-                realtimeJUnit(failsafeResults: '**/target/failsafe-reports/TEST-*.xml', surefireResults: '**/target/surefire-reports/TEST-*.xml' ) {
+                realtimeJUnit(testResults: '**/target/failsafe-reports/TEST-*.xml', testData: '**/target/surefire-reports/TEST-*.xml' ) {
                      withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
                         sh 'cd carRental && mvn verify'
                      }
