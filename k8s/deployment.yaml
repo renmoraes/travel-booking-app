@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: car-rental
-          image: remoraes/com.tus.microservices.car-rental:main_110_66bf
+          image: remoraes/com.tus.microservices.car-rental:main_121_cf81
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
