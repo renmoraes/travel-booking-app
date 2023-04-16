@@ -27,7 +27,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Push docker image') {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME.replace('/', '_')
