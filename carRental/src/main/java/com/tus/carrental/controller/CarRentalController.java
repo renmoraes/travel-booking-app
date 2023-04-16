@@ -109,5 +109,9 @@ public class CarRentalController {
     return ResponseEntity.ok(totalCost);
   }
 
+  @GetMapping("/{carRentalId}/hello")
+  public ResponseEntity<String> getTotalRentalCost() {
+    return ResponseEntity.ok("Test CI/CD flow");
+  }
 
 }
