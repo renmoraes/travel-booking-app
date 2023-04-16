@@ -57,8 +57,9 @@ pipeline {
                     sh '''
                         mkdir -p ~/.ssh
                         chmod 700 ~/.ssh
-                        ssh-keyscan github.com >> ~/.ssh/known_host
                     '''
+                    
+                    sh 'ssh-keyscan github.com >> ~/.ssh/known_hosts'
     
                     // Use ssh-agent with the configured SSH key
                     sshagent(credentials: ['jenkins-github-user']) {
@@ -81,6 +82,12 @@ pipeline {
         always {
             // Publish checkstyle and warning NG reports
             recordIssues(tools: [ java(), checkStyle(pattern: '**/target/checkstyle-result.xml', reportEnconding: 'UTF-8')])
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                               [pattern: '.propsfile', type: 'EXCLUDE']])
         }
         success {
             jacoco(
