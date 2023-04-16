@@ -93,7 +93,7 @@ pipeline {
             jacoco(
                 execPattern: '**/**/target/jacoco/*.exec',
                 classPattern: '**/**/target/classes/java/main',
-                sourcePattern: '**/**/src/main'
+                sourcePattern: '**/**/src/main' 
             )
         }
     }
