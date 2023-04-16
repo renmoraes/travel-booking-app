@@ -68,6 +68,7 @@ pipeline {
                            
                             sh '''
                                 git add k8s/deployment.yaml
+                                git pull origin "$GIT_BRANCH"
                                 git commit -m "Update deployment.yaml with new image tag: $IMAGE_TAG"
                                 git push origin HEAD:"$GIT_BRANCH"
                             '''
