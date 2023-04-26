@@ -40,6 +40,11 @@ public class CarRental {
   @Setter
   private BigDecimal price;
 
+  @Column(name = "available", nullable = false)
+  @Getter
+  @Setter
+  private boolean available = true;
+
   public BigDecimal getPrice() {
     return price.setScale(2, RoundingMode.HALF_UP);
   }

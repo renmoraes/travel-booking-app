@@ -56,9 +56,13 @@ public class Booking {
   private PaymentStatus paymentStatus;
 
   @Column(name = "start_date", nullable = false)
+  @Getter
+  @Setter
   private LocalDateTime startDate;
 
   @Column(name = "end_date", nullable = false)
+  @Getter
+  @Setter
   private LocalDateTime endDate;
 
   @Column(name = "booking_date", nullable = false)
@@ -76,7 +80,7 @@ public class Booking {
   public enum BookingStatus {
     PENDING,
     CONFIRMED,
-    CANCELED
+    CANCELLED
   }
 
   public enum PaymentStatus {

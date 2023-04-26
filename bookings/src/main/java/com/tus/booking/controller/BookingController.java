@@ -1,12 +1,16 @@
 package com.tus.booking.controller;
 
+import com.tus.booking.error.ErrorResponse;
 import com.tus.booking.model.Booking;
+import com.tus.booking.model.Booking.BookingStatus;
 import com.tus.booking.service.BookingService;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api/v1/bookings")
 public class BookingController {
 
   @Autowired
@@ -37,10 +41,52 @@ public class BookingController {
     return bookingOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  @PostMapping
-  public ResponseEntity<Booking> save(@RequestBody Booking booking) {
+  @PostMapping("/car")
+  public ResponseEntity<?> bookCar(@RequestParam Long carRentalId,
+      @RequestParam Long userId,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+    // Check if the car is available
+    boolean isCarAvailable = bookingService.isCarAvailable(carRentalId);
+    if (!isCarAvailable) {
+      return ResponseEntity.badRequest().body(new ErrorResponse("The car is not available for the specified dates"));
+    }
+
+    // Create the booking
+    Booking booking = new Booking();
+    booking.setUserId(userId);
+    booking.setCarRentalId(carRentalId);
+    booking.setBookingStatus(BookingStatus.CONFIRMED);
+    booking.setPaymentStatus(Booking.PaymentStatus.PENDING);
+    booking.setBookingDate(LocalDateTime.now());
+    booking.setStartDate(startDate);
+    booking.setEndDate(endDate);
+    BigDecimal totalPrice = bookingService.getTotalLocationPrice(carRentalId, startDate, endDate);
+    booking.setTotalPrice(totalPrice);
     Booking savedBooking = bookingService.save(booking);
+
+    // Mark the car as unavailable
+    bookingService.setCarUnavailable(carRentalId);
     return ResponseEntity.ok(savedBooking);
+  }
+
+  @PutMapping("/{bookingId}/cancel")
+  public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
+    Booking booking = bookingService.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+
+    if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
+      return ResponseEntity.badRequest().body(new ErrorResponse("Only bookings with 'CONFIRMED' status can be cancelled"));
+    }
+
+    booking.setBookingStatus(Booking.BookingStatus.CANCELLED);
+    booking.setEndDate(LocalDateTime.now());
+    bookingService.save(booking);
+
+    // Set the car as available
+    Long carRentalId = booking.getCarRentalId();
+    bookingService.setCarAvailable(carRentalId);
+
+    return ResponseEntity.ok().body("Booking canceled");
   }
 
   @PutMapping("/{id}")
@@ -64,16 +110,9 @@ public class BookingController {
     return ResponseEntity.noContent().build();
   }
 
-
   @GetMapping("car/availability/{carRentalId}")
-  public ResponseEntity<Boolean> checkCarAvailability(@PathVariable Long carRentalId,
-      @RequestParam String startDate,
-      @RequestParam String endDate) {
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    LocalDateTime startDateTime = LocalDateTime.parse(startDate, formatter);
-    LocalDateTime endDateTime = LocalDateTime.parse(endDate, formatter);
-
-    boolean isAvailable = bookingService.isCarAvailable(carRentalId, startDateTime, endDateTime);
+  public ResponseEntity<Boolean> checkCarAvailability(@PathVariable Long carRentalId) {
+    boolean isAvailable = bookingService.isCarAvailable(carRentalId);
     return ResponseEntity.ok(isAvailable);
   }
 

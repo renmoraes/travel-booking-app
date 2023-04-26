@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/carrentals")
+@RequestMapping("/api/v1/carrentals")
 public class CarRentalController {
 
   @Autowired
@@ -69,23 +69,29 @@ public class CarRentalController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/available")
+  @GetMapping("/available-cars")
   public ResponseEntity<List<CarRental>> findAvailableCarRentals(
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String carType,
       @RequestParam(required = false) BigDecimal minPrice,
-      @RequestParam(required = false) BigDecimal maxPrice,
-      @RequestParam String startDate,
-      @RequestParam String endDate) {
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    LocalDateTime startDateTime = LocalDateTime.parse(startDate, formatter);
-    LocalDateTime endDateTime = LocalDateTime.parse(endDate, formatter);
+      @RequestParam(required = false) BigDecimal maxPrice) {
 
-    List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals(location, carType, minPrice, maxPrice, startDateTime, endDateTime);
+    List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals(location, carType, minPrice, maxPrice);
     if (availableCarRentals.isEmpty()){
       return ResponseEntity.noContent().build();
     }
     return ResponseEntity.ok(availableCarRentals);
+  }
+
+  @PutMapping("/{carRentalId}/available")
+  public ResponseEntity<String> setCarAvailable(@PathVariable Long carRentalId, @RequestParam boolean setAvailability) {
+    carRentalService.setCarAvailable(carRentalId, setAvailability);
+    return ResponseEntity.ok("Car rental availability with ID " + carRentalId + " has been updated. available=" + setAvailability);
+  }
+
+  @GetMapping("{carRentalId}/availability")
+  public boolean isCarAvailable(@PathVariable Long carRentalId) {
+    return carRentalService.isCarAvailable(carRentalId);
   }
 
   @GetMapping("/{carRentalId}/totalcost")

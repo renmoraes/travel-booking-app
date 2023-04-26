@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -17,15 +16,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tus.carrental.CarRentalBaseUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,7 +31,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.tus.carrental.dao.CarRentalRepository;
 import com.tus.carrental.model.CarRental;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
@@ -139,9 +134,6 @@ public class CarRentalServiceTest {
   public void testFindAvailableCarRentals() {
     List<CarRental> allCarRentals = carRentalList();
 
-    LocalDateTime startDate = LocalDateTime.now().plusDays(1);
-    LocalDateTime endDate = LocalDateTime.now().plusDays(7);
-
     when(carRentalRepository.findAll()).thenReturn(allCarRentals);
     // Set up mock objects
     RestTemplate restTemplateMock = mock(RestTemplate.class);
@@ -150,7 +142,7 @@ public class CarRentalServiceTest {
     // Inject the mock RestTemplate into the CarRentalService instance
     ReflectionTestUtils.setField(carRentalService, "restTemplate", restTemplateMock);
 
-    List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals("London, UK", "Sedan", BigDecimal.valueOf(40.00), BigDecimal.valueOf(60.00), startDate, endDate);
+    List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals("London, UK", "Sedan", BigDecimal.valueOf(40.00), BigDecimal.valueOf(60.00));
 
     assertEquals(1, availableCarRentals.size());
     assertEquals(allCarRentals.get(0).getId(), availableCarRentals.get(0).getId());
@@ -175,7 +167,7 @@ public class CarRentalServiceTest {
     // Inject the mock RestTemplate into the CarRentalService instance
     ReflectionTestUtils.setField(carRentalService, "restTemplate", restTemplateMock);
 
-    boolean carAvailable = carRentalService.isCarAvailable(allCarRentals.get(0), startDate, endDate);
+    boolean carAvailable = carRentalService.isCarAvailable(allCarRentals.get(0).getId());
     assertFalse(carAvailable, "expect car to be unavailable ");
   }
 

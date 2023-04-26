@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,20 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CarRentalService {
   @Autowired
   private CarRentalRepository carRentalRepository;
-
-  @Autowired
-  private RestTemplate restTemplate;
-
-  @Value("${booking.module.base-url}")
-  private String bookingModuleBaseUrl;
 
   private static final Logger logger = LoggerFactory.getLogger(CarRentalService.class);
 
@@ -48,15 +39,15 @@ public class CarRentalService {
     carRentalRepository.deleteById(id);
   }
 
-  public boolean isCarAvailable(CarRental carRental, LocalDateTime startDate, LocalDateTime endDate) {
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    String startDateStr = startDate.format(formatter);
-    String endDateStr = endDate.format(formatter);
+  public void setCarAvailable(Long carRentalId, boolean availability) {
+    CarRental carRental = carRentalRepository.findById(carRentalId).orElseThrow(() -> new RuntimeException("Car rental not found"));
+    carRental.setAvailable(availability);
+    carRentalRepository.save(carRental);
+  }
 
-    String url = bookingModuleBaseUrl + "/api/bookings/car/availability/" + carRental.getId() + "?startDate=" + startDateStr + "&endDate=" + endDateStr;
-
-    ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
-    return response.getBody() != null && response.getBody();
+  public boolean isCarAvailable(Long carRentalId) {
+    CarRental carRental = carRentalRepository.findById(carRentalId).orElseThrow(() -> new RuntimeException("Car rental not found"));
+    return  carRental.isAvailable();
   }
 
   public BigDecimal calculateRentalCost(CarRental carRental, LocalDateTime startDate, LocalDateTime endDate) {
@@ -74,7 +65,7 @@ public class CarRentalService {
     return rentalCost.subtract(discountAmount).setScale(2, RoundingMode.HALF_UP);
   }
 
-  public List<CarRental> findAvailableCarRentals(String location, String carType, BigDecimal minPrice, BigDecimal maxPrice, LocalDateTime startDate, LocalDateTime endDate) {
+  public List<CarRental> findAvailableCarRentals(String location, String carType, BigDecimal minPrice, BigDecimal maxPrice) {
     List<CarRental> allCarRentals = carRentalRepository.findAll();
 
     Stream<CarRental> filteredCarRentals = allCarRentals.stream()
@@ -86,7 +77,7 @@ public class CarRentalService {
         .peek(carRental -> logger.debug("Filtered by minPrice: id={}, location={}, carType={}, price={}", carRental.getId(), carRental.getLocation(), carRental.getCarType(), carRental.getPrice()))
         .filter(carRental -> maxPrice == null || carRental.getPrice().compareTo(maxPrice) <= 0)
         .peek(carRental -> logger.debug("Filtered by maxPrice: id={}, location={}, carType={}, price={}", carRental.getId(), carRental.getLocation(), carRental.getCarType(), carRental.getPrice()))
-        .filter(carRental -> isCarAvailable(carRental, startDate, endDate))
+        .filter(CarRental::isAvailable)
         .peek(carRental -> logger.debug("Filtered by availability: id={}, location={}, carType={}, price={}", carRental.getId(), carRental.getLocation(), carRental.getCarType(), carRental.getPrice()));
 
     return filteredCarRentals.collect(Collectors.toList());

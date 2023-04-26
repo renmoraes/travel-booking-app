@@ -16,11 +16,11 @@
   <description>carRental</description>
   <properties>
     <java.version>11</java.version>
-    <sonar.projectName>carRental</sonar.projectName>
-    <sonar.projectKey>tus:travel-booking-app:carRental</sonar.projectKey>
-    <sonar.host.url>http://151.236.216.18:9000/</sonar.host.url>
-    <sonar.login>${env.SONAR_AUTH_TOKEN}</sonar.login>
-    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>
+<!--    <sonar.projectName>carRental</sonar.projectName>-->
+<!--    <sonar.projectKey>tus:travel-booking-app:carRental</sonar.projectKey>-->
+<!--    <sonar.host.url>http://151.236.216.18:9000/</sonar.host.url>-->
+<!--    <sonar.login>${env.SONAR_AUTH_TOKEN}</sonar.login>-->
+<!--    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>-->
   </properties>
   <dependencies>
     <dependency>
@@ -79,19 +79,19 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>3.9.0.2155</version>
-				<executions>
-					<execution>
-					<phase>verify</phase>
-					<goals>
-						<goal>sonar</goal>
-					</goals>
-					</execution>
-				</executions>
-			</plugin>
+<!--      <plugin>-->
+<!--				<groupId>org.sonarsource.scanner.maven</groupId>-->
+<!--				<artifactId>sonar-maven-plugin</artifactId>-->
+<!--				<version>3.9.0.2155</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--					<phase>verify</phase>-->
+<!--					<goals>-->
+<!--						<goal>sonar</goal>-->
+<!--					</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
