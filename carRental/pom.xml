@@ -16,6 +16,7 @@
   <description>carRental</description>
   <properties>
     <java.version>11</java.version>
+    <spring.cloud-version>2021.0.5</spring.cloud-version>
 <!--    <sonar.projectName>carRental</sonar.projectName>-->
 <!--    <sonar.projectKey>tus:travel-booking-app:carRental</sonar.projectKey>-->
 <!--    <sonar.host.url>http://151.236.216.18:9000/</sonar.host.url>-->
@@ -31,6 +32,14 @@
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
       <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-config-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-bootstrap</artifactId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-validation</artifactId>
@@ -51,6 +60,17 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring.cloud-version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <build>
     <plugins>
       <plugin>

@@ -10,6 +10,7 @@
     <module>carRental</module>
     <module>flights</module>
     <module>hotel</module>
+    <module>cloud-config-server</module>
   </modules>
 
   <properties>
