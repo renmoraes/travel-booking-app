@@ -15,7 +15,7 @@ pipeline {
             steps {
                 realtimeJUnit('**/target/*/TEST-*.xml' ) {
                      withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
-                        sh 'cd carRental && mvn verify'
+                        sh 'cd car-rental && mvn verify'
                      }
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
 
         stage('Create JAR file') {
             steps {
-                sh 'cd carRental && mvn package -DskipTests'
+                sh 'cd car-rental && mvn package -DskipTests'
             }
         }
 
@@ -34,7 +34,7 @@ pipeline {
                     def commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
                     def dockerImageName = "remoraes/com.tus.microservices.car-rental:${branchName}_${env.BUILD_ID}_${commitHash.take(4)}"
                     docker.withRegistry('', 'jenkins_dockerhub') {
-                        def customImage = docker.build( dockerImageName, "-f carRental/Dockerfile ./carRental")
+                        def customImage = docker.build( dockerImageName, "-f car-rental/Dockerfile ./car-rental")
                         customImage.push()
                     }
                 }
