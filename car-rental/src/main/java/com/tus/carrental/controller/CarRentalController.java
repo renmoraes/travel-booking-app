@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +29,11 @@ public class CarRentalController {
   @Autowired
   private CarRentalService carRentalService;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CarRentalController.class);
+
   @GetMapping
   public ResponseEntity<List<CarRental>> findAll() {
+    LOGGER.info("GET request received for all car rentals");
     List<CarRental> carRentals = carRentalService.findAll();
     if (carRentals.size()==0){
       return ResponseEntity.status(HttpStatus.NO_CONTENT).body(carRentals);
@@ -38,18 +43,21 @@ public class CarRentalController {
 
   @GetMapping("/{id}")
   public ResponseEntity<CarRental> findById(@PathVariable Long id) {
+    LOGGER.info("GET request received for car rental with id {}", id);
     Optional<CarRental> carRentalOptional = carRentalService.findById(id);
     return carRentalOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @PostMapping
   public ResponseEntity<CarRental> save(@RequestBody CarRental carRental) {
+    LOGGER.info("POST request received to create new car rental");
     CarRental savedCarRental = carRentalService.save(carRental);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedCarRental);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<CarRental> update(@PathVariable Long id, @RequestBody CarRental carRental) {
+    LOGGER.info("PUT request received to update car rental with id {}", id);
     Optional<CarRental> carRentalOptional = carRentalService.findById(id);
     if (carRentalOptional.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -61,6 +69,7 @@ public class CarRentalController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+    LOGGER.info("DELETE request received to delete car rental with id {}", id);
     Optional<CarRental> carRentalOptional = carRentalService.findById(id);
     if (carRentalOptional.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -75,7 +84,7 @@ public class CarRentalController {
       @RequestParam(required = false) String carType,
       @RequestParam(required = false) BigDecimal minPrice,
       @RequestParam(required = false) BigDecimal maxPrice) {
-
+    LOGGER.info("GET request received for available car rentals with location={}, carType={}, minPrice={}, maxPrice={}", location, carType, minPrice, maxPrice);
     List<CarRental> availableCarRentals = carRentalService.findAvailableCarRentals(location, carType, minPrice, maxPrice);
     if (availableCarRentals.isEmpty()){
       return ResponseEntity.noContent().build();
@@ -85,12 +94,14 @@ public class CarRentalController {
 
   @PutMapping("/{carRentalId}/available")
   public ResponseEntity<String> setCarAvailable(@PathVariable Long carRentalId, @RequestParam boolean setAvailability) {
+    LOGGER.info("PUT request received to update availability to {} for car id {}",setAvailability, carRentalId);
     carRentalService.setCarAvailable(carRentalId, setAvailability);
     return ResponseEntity.ok("Car rental availability with ID " + carRentalId + " has been updated. available=" + setAvailability);
   }
 
   @GetMapping("{carRentalId}/availability")
   public boolean isCarAvailable(@PathVariable Long carRentalId) {
+    LOGGER.info("GET request received to check availability for car id {}", carRentalId);
     return carRentalService.isCarAvailable(carRentalId);
   }
 
@@ -102,6 +113,8 @@ public class CarRentalController {
       @RequestParam(required = false) BigDecimal additionalFees,
       @RequestParam(required = false) BigDecimal taxRate,
       @RequestParam(required = false) BigDecimal discountRate) {
+    LOGGER.info("GET request received to calculate total rental cost for car rental ID: {}, start date: {}, end date: {}, additional fees: {}, tax rate: {}, discount rate: {}",
+        carRentalId, startDate, endDate, additionalFees, taxRate, discountRate);
     Optional<CarRental> carRentalOpt = carRentalService.findById(carRentalId);
     if (carRentalOpt.isEmpty()) {
       return ResponseEntity.notFound().build();

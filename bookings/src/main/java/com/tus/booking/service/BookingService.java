@@ -51,18 +51,18 @@ public class BookingService {
   }
 
   public boolean isCarAvailable(Long carRentalId) {
-    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/availability";
+    String url = "http://api-gateway/api/v1/carrentals/" + carRentalId + "/availability";
     ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
     return Boolean.TRUE.equals(response.getBody());
   }
 
   public void setCarUnavailable(Long carRentalId) {
-    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/available?setAvailability=false";
+    String url = "http://api-gateway/api/v1/carrentals/" + carRentalId + "/available?setAvailability=false";
     restTemplate.put(url, null);
   }
 
   public void setCarAvailable(Long carRentalId) {
-    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/available?setAvailability=true";
+    String url = "http://api-gateway/api/v1/carrentals/" + carRentalId + "/available?setAvailability=true";
     restTemplate.put(url, null);
   }
 

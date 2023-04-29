@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -29,20 +31,25 @@ public class BookingController {
   @Autowired
   private BookingService bookingService;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(BookingController.class);
+
   @GetMapping
   public ResponseEntity<List<Booking>> findAll() {
+    LOGGER.info("Received a request to retrieve all bookings");
     List<Booking> bookings = bookingService.findAll();
     return ResponseEntity.ok(bookings);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<Booking> findById(@PathVariable Long id) {
+    LOGGER.info("Received a request to retrieve booking with id {}", id);
     Optional<Booking> bookingOptional = bookingService.findById(id);
     return bookingOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @GetMapping("/delay/{id}")
   public ResponseEntity<Booking> findByWithDelay(@PathVariable Long id,@RequestParam(defaultValue = "0") int delayMillis) {
+    LOGGER.info("Received a request to retrieve booking with id {} with delay {}", id, delayMillis);
     Optional<Booking> bookingOptional = null;
     try {
       bookingOptional = bookingService.findByIdWithDelay(id, delayMillis);
@@ -57,6 +64,7 @@ public class BookingController {
       @RequestParam Long userId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+    LOGGER.info("Received a request to book car with carRentalId {}, userId {}, startDate {}, endDate {}", carRentalId, userId, startDate, endDate);
     // Check if the car is available
     boolean isCarAvailable = bookingService.isCarAvailable(carRentalId);
     if (!isCarAvailable) {
@@ -84,6 +92,7 @@ public class BookingController {
   @PutMapping("/{bookingId}/cancel")
   public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
     Booking booking = bookingService.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+    LOGGER.info("Cancel booking with id: {}", bookingId);
 
     if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
       return ResponseEntity.badRequest().body(new ErrorResponse("Only bookings with 'CONFIRMED' status can be cancelled"));
@@ -102,6 +111,7 @@ public class BookingController {
 
   @PutMapping("/{id}")
   public ResponseEntity<Booking> update(@PathVariable Long id, @RequestBody Booking booking) {
+    LOGGER.info("Update booking with id: {}", id);
     Optional<Booking> bookingOptional = bookingService.findById(id);
     if (bookingOptional.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -113,6 +123,7 @@ public class BookingController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+    LOGGER.info("Delete booking with id: {}", id);
     Optional<Booking> bookingOptional = bookingService.findById(id);
     if (bookingOptional.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -123,7 +134,9 @@ public class BookingController {
 
   @GetMapping("car/availability/{carRentalId}")
   public ResponseEntity<Boolean> checkCarAvailability(@PathVariable Long carRentalId) {
+    LOGGER.info("Check car availability for car rental id: {}", carRentalId);
     boolean isAvailable = bookingService.isCarAvailable(carRentalId);
+    LOGGER.info("Car availability for car rental id: {} is {}", carRentalId, isAvailable);
     return ResponseEntity.ok(isAvailable);
   }
 
