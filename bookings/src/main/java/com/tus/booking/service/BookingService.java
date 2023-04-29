@@ -21,9 +21,6 @@ public class BookingService {
   @Autowired
   private RestTemplate restTemplate;
 
-  @Value("${car_rentals.module.base-url}")
-  private String carRentalModuleBaseUrl;
-
   public List<Booking> findAll() {
     return bookingRepository.findAll();
   }
@@ -41,23 +38,23 @@ public class BookingService {
   }
 
   public boolean isCarAvailable(Long carRentalId) {
-    String url =  carRentalModuleBaseUrl + "api/v1/carrentals/" + carRentalId + "/availability";
+    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/availability";
     ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
     return Boolean.TRUE.equals(response.getBody());
   }
 
   public void setCarUnavailable(Long carRentalId) {
-    String url = carRentalModuleBaseUrl + "api/v1/carrentals/" + carRentalId + "/available?setAvailability=false";
+    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/available?setAvailability=false";
     restTemplate.put(url, null);
   }
 
   public void setCarAvailable(Long carRentalId) {
-    String url = carRentalModuleBaseUrl + "api/v1/carrentals/" + carRentalId + "/available?setAvailability=true";
+    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId + "/available?setAvailability=true";
     restTemplate.put(url, null);
   }
 
   public BigDecimal getTotalLocationPrice(Long carRentalId, LocalDateTime startDate, LocalDateTime endDate) {
-    String url = carRentalModuleBaseUrl + "api/v1/carrentals/" + carRentalId
+    String url = "http://car-rental-service/api/v1/carrentals/" + carRentalId
         + "/totalcost?startDate=" + startDate + "&endDate=" + endDate + "&additionalFees=20&taxRate=10&discountRate=5";
     ResponseEntity<BigDecimal> response = restTemplate.getForEntity(url, BigDecimal.class);
     return response.getBody();
