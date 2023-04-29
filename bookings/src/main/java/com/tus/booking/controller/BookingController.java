@@ -41,6 +41,17 @@ public class BookingController {
     return bookingOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/delay/{id}")
+  public ResponseEntity<Booking> findByWithDelay(@PathVariable Long id,@RequestParam(defaultValue = "0") int delayMillis) {
+    Optional<Booking> bookingOptional = null;
+    try {
+      bookingOptional = bookingService.findByIdWithDelay(id, delayMillis);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    return bookingOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
   @PostMapping("/car")
   public ResponseEntity<?> bookCar(@RequestParam Long carRentalId,
       @RequestParam Long userId,

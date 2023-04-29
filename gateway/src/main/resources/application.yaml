@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: bookings
+          uri: lb://bookings-service
+          predicates:
+            - Path=/api/v1/bookings/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fallback
+                fallbackUri: forward:/bookings-fallback
+        - id: car-rentals
+          uri: lb://car-rental-service
+          predicates:
+            - Path=/api/v1/carrentals/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fallback
+                fallbackUri: forward:/car-rental-fallback
+hystrix:
+  command:
+      circuitBreaker:
+        requestVolumeThreshold: 2
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 5000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+#chaos:
+#  monkey:
+#    enabled: false
+#
+#management:
+#  endpoint:
+#    chaosmonkey:
+#      enabled: true
+#    chaosmonkeyjmx:
+#      enabled: true
+#
+#  endpoints:
+#    web:
+#      exposure:
+#        # include all endpoints
+#        include: "*"

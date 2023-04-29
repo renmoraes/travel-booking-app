@@ -6,8 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,12 +22,24 @@ public class BookingService {
   @Autowired
   private RestTemplate restTemplate;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(BookingService.class);
+
   public List<Booking> findAll() {
     return bookingRepository.findAll();
   }
 
   public Optional<Booking> findById(Long id) {
     return bookingRepository.findById(id);
+  }
+
+  public Optional<Booking> findByIdWithDelay(Long id, int delayMillis) throws InterruptedException {
+    Thread.sleep(delayMillis);
+    return bookingRepository.findById(id);
+  }
+
+  private Optional<Booking> findByIdFallback(Long id, Throwable e) {
+    LOGGER.error("Error fetching booking with id {}, error message: {}", id, e.getMessage());
+    return Optional.empty();
   }
 
   public Booking save(Booking booking) {
