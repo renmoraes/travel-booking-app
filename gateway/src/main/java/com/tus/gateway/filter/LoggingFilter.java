@@ -17,10 +17,12 @@ public class LoggingFilter implements GlobalFilter, Ordered {
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     logger.info("Request {}: {}", exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
+    logger.debug("Headers {}", exchange.getRequest().getHeaders());
 
     return chain.filter(exchange)
         .then(Mono.fromRunnable(() -> {
           logger.info("Response {}: {}", exchange.getResponse().getStatusCode().toString(), exchange.getRequest().getURI().getPath());
+          logger.debug("Headers {}", exchange.getResponse().getHeaders());
         }));
   }
 

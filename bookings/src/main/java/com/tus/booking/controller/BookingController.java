@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,13 +61,14 @@ public class BookingController {
   }
 
   @PostMapping("/car")
-  public ResponseEntity<?> bookCar(@RequestParam Long carRentalId,
+  public ResponseEntity<?> bookCar(@RequestHeader(value = "Authorization") String authorizationHeader,
+      @RequestParam Long carRentalId,
       @RequestParam Long userId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
     LOGGER.info("Received a request to book car with carRentalId {}, userId {}, startDate {}, endDate {}", carRentalId, userId, startDate, endDate);
     // Check if the car is available
-    boolean isCarAvailable = bookingService.isCarAvailable(carRentalId);
+    boolean isCarAvailable = bookingService.isCarAvailable(carRentalId, authorizationHeader);
     if (!isCarAvailable) {
       return ResponseEntity.badRequest().body(new ErrorResponse("The car is not available for the specified dates"));
     }
@@ -80,17 +82,18 @@ public class BookingController {
     booking.setBookingDate(LocalDateTime.now());
     booking.setStartDate(startDate);
     booking.setEndDate(endDate);
-    BigDecimal totalPrice = bookingService.getTotalLocationPrice(carRentalId, startDate, endDate);
+    BigDecimal totalPrice = bookingService.getTotalLocationPrice(carRentalId, startDate, endDate, authorizationHeader);
     booking.setTotalPrice(totalPrice);
     Booking savedBooking = bookingService.save(booking);
 
     // Mark the car as unavailable
-    bookingService.setCarUnavailable(carRentalId);
+    bookingService.setCarUnavailable(carRentalId, authorizationHeader);
     return ResponseEntity.ok(savedBooking);
   }
 
   @PutMapping("/{bookingId}/cancel")
-  public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
+  public ResponseEntity<?> cancelBooking(@RequestHeader(value = "Authorization") String authorizationHeader,
+      @PathVariable Long bookingId) {
     Booking booking = bookingService.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
     LOGGER.info("Cancel booking with id: {}", bookingId);
 
@@ -104,7 +107,7 @@ public class BookingController {
 
     // Set the car as available
     Long carRentalId = booking.getCarRentalId();
-    bookingService.setCarAvailable(carRentalId);
+    bookingService.setCarAvailable(carRentalId, authorizationHeader);
 
     return ResponseEntity.ok().body("Booking canceled");
   }
@@ -133,9 +136,10 @@ public class BookingController {
   }
 
   @GetMapping("car/availability/{carRentalId}")
-  public ResponseEntity<Boolean> checkCarAvailability(@PathVariable Long carRentalId) {
+  public ResponseEntity<Boolean> checkCarAvailability(@RequestHeader(value = "Authorization") String authorizationHeader,
+      @PathVariable Long carRentalId) {
     LOGGER.info("Check car availability for car rental id: {}", carRentalId);
-    boolean isAvailable = bookingService.isCarAvailable(carRentalId);
+    boolean isAvailable = bookingService.isCarAvailable(carRentalId, authorizationHeader);
     LOGGER.info("Car availability for car rental id: {} is {}", carRentalId, isAvailable);
     return ResponseEntity.ok(isAvailable);
   }
