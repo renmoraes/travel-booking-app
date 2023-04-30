@@ -39,7 +39,9 @@ hystrix:
 server:
   port: 8080
 
-
+eureka:
+  instance:
+    instance-id: api-gateway
 
 
 #logging:

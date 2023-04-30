@@ -14,9 +14,10 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 	public void configure(HttpSecurity http) throws Exception
 	{
 		http.authorizeRequests()
-			.antMatchers(HttpMethod.DELETE, "/api/v1/booking/**").hasRole("ADMIN")
-			.antMatchers(HttpMethod.PUT, "/api/v1/booking/**/cancel").hasRole("BA")
-			.anyRequest().authenticated();
+				.antMatchers("/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v3/api-docs", "/webjars/**").permitAll()
+				.antMatchers(HttpMethod.DELETE, "/api/v1/booking/**").hasRole("ADMIN")
+				.antMatchers(HttpMethod.PUT, "/api/v1/booking/**/cancel").hasRole("BA")
+				.anyRequest().authenticated();
 	}
 
 }
